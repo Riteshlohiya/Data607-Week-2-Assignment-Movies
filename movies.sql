@@ -32,7 +32,6 @@ LINES TERMINATED BY '\n'
 IGNORE 1 ROWS;
 
 
-
 SELECT 'demo', COUNT(*) FROM demo
   UNION
 SELECT 'ratings', COUNT(*) FROM ratings;
