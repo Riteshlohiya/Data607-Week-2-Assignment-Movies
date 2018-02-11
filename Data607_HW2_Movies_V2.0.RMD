@@ -1,0 +1,130 @@
+---
+title: "Data607 HW2 V2.0"
+author: "Ritesh Lohiya"
+date: "February 10, 2018"
+output: html_document
+---
+
+Choose six recent popular movies.  Ask at least five people that you know (friends, family, classmates, imaginary friends) to rate each of these movie that they have seen on a scale of 1 to 5.  Take the results (observations) and store them in a SQL database.  Load the information into an R dataframe.
+
+Data has been loaded to the MYSQL Workbench using the below sql query placed at GitHub "https://github.com/Riteshlohiya/Data607-Week-2-Assignment-Movies/blob/master/movies.sql"
+
+I have prepared 2 tables demo(personal information) and ratings(rating of the movies)
+
+#Read the DB password for from the file
+```{r}
+password = read.table("C:/ProgramData/MySQL/MySQL Server 5.7/Uploads/flights/pass.txt")
+```
+
+#install.packages('RMySQL',type='source')
+```{r}
+library(RMySQL)
+library(DBI)
+library(ggplot2)
+```
+
+Connection to the MySQL:
+
+
+```{r}
+moviesdb = dbConnect(MySQL(), user='root', password=toString(password[1,1]), dbname='movies', host='localhost')
+```
+
+List the fields in demo table:
+
+```{r}
+dbListFields(moviesdb, 'demo')
+```
+
+List the fields in ratings table:
+
+```{r}
+dbListFields(moviesdb, 'ratings')
+```
+
+Now getting the frequency of the ratings:
+
+```{r}
+freq_df<-dbGetQuery(moviesdb,'select movie_name, rating, count(rating) as count
+from ratings
+group by movie_name,rating
+order by movie_name, rating;')
+```
+
+View the frequency distribution:
+
+```{r}
+freq_df
+```
+
+Joining the 2 tables and prepare the dataframes:
+
+```{r}
+movies_df<-dbGetQuery(moviesdb, 'select 
+a.name, 
+a.name_id, 
+a.state, 
+a.age,
+b.movie_name,
+b.rating
+from demo a
+left join ratings b
+on a.name_id=b.name_id
+order by b.rating
+;')
+```
+Contents of the dataframe
+```{r}
+head(movies_df)
+```
+
+To check if there are any missing values for the ratings:
+
+Contents of the dataframe:
+
+```{r}
+colSums(is.na(movies_df))
+```
+So no missing values.
+
+Frequency by table:
+```{r}
+table(movies_df$movie_name, movies_df$rating)
+```
+
+Ritesh's rating view:
+
+```{r}
+Ritesh_Rating <- subset(movies_df, name_id == "A1", select = c(movie_name, 
+    rating))
+
+ggplot(Ritesh_Rating, aes(x = movie_name, y = rating, fill = movie_name)) + 
+    geom_bar(stat = "identity") + ggtitle("Ritesh Reviews") + xlab("Movie_Name") + 
+    ylab("Rating") + guides(fill = FALSE) + theme(axis.text.x = element_text(angle = 45, 
+    hjust = 1))
+```
+
+Average movie scores:
+
+```{r}
+avgscore <- aggregate(movies_df$rating ~ movies_df$movie_name, 
+    movies_df, mean)
+colnames(avgscore) <- c("movie_name", "mean_score")
+
+ggplot(avgscore, aes(x = movie_name, y = mean_score, fill = movie_name)) + 
+    geom_bar(stat = "identity") + ggtitle("Average Scores by movie_name") + 
+    xlab("Name") + ylab("Mean Score") + guides(fill = FALSE)
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
