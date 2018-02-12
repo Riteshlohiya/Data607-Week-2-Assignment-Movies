@@ -92,7 +92,7 @@ Frequency by table:
 table(movies_df$movie_name, movies_df$rating)
 ```
 
-Ritesh's rating view:
+Ritesh's rating view:  
 
 ```{r}
 Ritesh_Rating <- subset(movies_df, name_id == "A1", select = c(movie_name, 
@@ -116,15 +116,14 @@ ggplot(avgscore, aes(x = movie_name, y = mean_score, fill = movie_name)) +
     xlab("Name") + ylab("Mean Score") + guides(fill = FALSE)
 ```
 
+Ratings by age:
 
+```{r}
+summary(movies_df$age)
+```
 
+Histogram for ratings's age:
 
-
-
-
-
-
-
-
-
-
+```{r}
+hist(movies_df$age, xlab = "Age", main = "Histogram for distribution of Age", breaks = 20)
+```{r}
